@@ -49,8 +49,33 @@ async function run() {
       const options = { upsert: true };
 
       let distinctValues = [];
+      let newQuantities = [];
       distinctValues = await toolCollection.distinct("email", filter);
+      newQuantities = await toolCollection.distinct("orderedquantity", filter);
+      const userQuantity = client.db("toolex").collection(`${userEmail}`);
+      const newDoc = {
+        _id: ObjectId(itemId),
+        quantity: quantity,
+      };
+      const newerDoc = {
+        $set: {
+          quantity: quantity,
+        },
+      };
+      // const newresult = await userQuantity.insertOne(newDoc);
+      const findresult = await userQuantity.findOne(filter);
+      if (findresult?.quantity) {
+        const newresult = await userQuantity.updateOne(
+          filter,
+          newerDoc,
+          options
+        );
+      } else {
+        const newresult = await userQuantity.insertOne(newDoc);
+      }
+      //console.log(findresult);
       let newEmail = [...distinctValues];
+      let newerQuantity = userEmail + quantity;
       if (distinctValues.indexOf(userEmail) === -1) {
         newEmail = [...distinctValues, userEmail];
       }
