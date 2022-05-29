@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const { ObjectID } = require("bson");
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -35,6 +36,32 @@ async function run() {
       const result = await toolCollection.findOne(query);
       //console.log(itemId);
       res.send(result);
+    });
+    // api to add a order to a specific user
+
+    app.put("/purchase/:id", async (req, res) => {
+      const itemId = req.params.id;
+      const userEmail = req.query.email;
+      const quantity = req.query.quantity;
+
+      const filter = { _id: ObjectId(itemId) };
+
+      const options = { upsert: true };
+
+      let distinctValues = [];
+      distinctValues = await toolCollection.distinct("email", filter);
+      let newEmail = [...distinctValues];
+      if (distinctValues.indexOf(userEmail) === -1) {
+        newEmail = [...distinctValues, userEmail];
+      }
+      const updateDoc = {
+        $set: {
+          email: newEmail,
+        },
+      };
+      const result = await toolCollection.updateOne(filter, updateDoc, options);
+      res.send(newEmail);
+      console.log(itemId, userEmail);
     });
   } finally {
     ///
