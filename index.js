@@ -129,8 +129,8 @@ async function run() {
       res.send(result);
     });
     app.get("/users/addadmin", async (req, res) => {
-      const query = { email: userEmail };
       const userEmail = req.query.email;
+      const query = { email: userEmail };
       const result = await userCollection.findOne(query);
       // const result = await cursor.toArray();
       const isadmin = result.role === "admin";
