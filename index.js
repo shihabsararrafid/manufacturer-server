@@ -112,7 +112,49 @@ async function run() {
       res.send(newEmail);
       console.log(itemId, userEmail);
     });
+    //api to load review data
+    app.get("/review", async (req, res) => {
+      const reviewCollection = client.db("toolex").collection("review");
+      const query = {};
+      const cursor = reviewCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    const userCollection = client.db("toolex").collection("users");
+    //api for getting all users
+    app.get("/users", async (req, res) => {
+      const query = {};
+      const cursor = userCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    //api for posting all users
+    app.put("/users", async (req, res) => {
+      const userEmail = req.query.email;
+      const filter = { email: userEmail };
+      const findresult = await userCollection.findOne(filter);
+      const doc = {
+        email: userEmail,
+      };
+      console.log(findresult?.email === userEmail);
+      if (findresult?.email) {
+        const options = { upsert: true };
+        const updatedDoc = {
+          $set: {
+            email: userEmail,
+          },
+        };
+        const result = await userCollection.updateOne(
+          filter,
+          updatedDoc,
+          options
+        );
+      } else {
+        const result = await userCollection.insertOne(doc);
+      }
 
+      console.log(findresult);
+    });
     //api for putting review data
     app.post("/review", async (req, res) => {
       const reviewCollection = client.db("toolex").collection("review");
