@@ -79,6 +79,24 @@ async function run() {
       } else {
         const newresult = await userQuantity.insertOne(newDoc);
       }
+      //api to update quantity
+      app.put("/tools", async (req, res) => {
+        const quantity1 = req.query.quantity;
+        const itemId = req.query.id;
+        const availQuan = req.query.available;
+        const newquantity = parseInt(availQuan) - parseInt(quantity1);
+        const query = { _id: ObjectId(itemId) };
+        const options = { upsert: true };
+        const updateDoc = {
+          $set: {
+            quantity: newquantity,
+          },
+        };
+        //console.log(quantity, availQuan, newquan);
+        const result = await userQuantity.updateOne(query, updateDoc, options);
+        res.send(result);
+        console.log(result);
+      });
       //console.log(findresult);
       let newEmail = [...distinctValues];
       let newerQuantity = userEmail + quantity;
@@ -94,6 +112,27 @@ async function run() {
       res.send(newEmail);
       console.log(itemId, userEmail);
     });
+
+    //api for putting review data
+    app.post("/review", async (req, res) => {
+      const reviewCollection = client.db("toolex").collection("review");
+      const newReview = req.body.review;
+      const userMail = req.query.email;
+      const img = req.query.img;
+      const name = req.query.name;
+      const startingIndex = req.query.start;
+      const doc = {
+        review: newReview,
+        email: userMail,
+        img: img,
+        name: name,
+        start: startingIndex,
+      };
+      const result = await reviewCollection.insertOne(doc);
+      res.send(result);
+      console.log(result);
+    });
+
     // api to load orders according to user
     app.get("/myorders", async (req, res) => {
       const userEmail = req.query.email;
