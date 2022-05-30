@@ -128,6 +128,20 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
+    // api to add a user as admin
+    app.put("/users/addadmin", async (req, res) => {
+      const userEmail = req.query.email;
+      console.log(userEmail);
+      const query = { email: userEmail };
+      const optoins = { upsert: true };
+      const updateDoc = {
+        $set: {
+          role: "admin",
+        },
+      };
+      const result = await userCollection.updateOne(query, updateDoc, optoins);
+      console.log(result);
+    });
     //api for posting all users
     app.put("/users", async (req, res) => {
       const userEmail = req.query.email;
