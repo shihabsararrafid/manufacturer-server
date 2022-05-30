@@ -103,6 +103,16 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
+    // api to delete items from my item
+    app.delete("/myorders", async (req, res) => {
+      const itemid = req.query.id;
+      const userEmail = req.query.email;
+      const query = { _id: ObjectId(itemid) };
+      const userQuantity = client.db("toolex").collection(`${userEmail}`);
+      const result = await userQuantity.deleteOne(query);
+      res.send(result);
+      console.log(result);
+    });
   } finally {
     ///
   }
