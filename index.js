@@ -43,6 +43,9 @@ async function run() {
       const itemId = req.params.id;
       const userEmail = req.query.email;
       const quantity = req.query.quantity;
+      const price = req.query.price;
+      const img = req.query.img;
+      const name = req.query.name;
 
       const filter = { _id: ObjectId(itemId) };
 
@@ -56,6 +59,9 @@ async function run() {
       const newDoc = {
         _id: ObjectId(itemId),
         quantity: quantity,
+        price: price,
+        img: img,
+        name: name,
       };
       const newerDoc = {
         $set: {
@@ -87,6 +93,15 @@ async function run() {
       const result = await toolCollection.updateOne(filter, updateDoc, options);
       res.send(newEmail);
       console.log(itemId, userEmail);
+    });
+    // api to load orders according to user
+    app.get("/myorders", async (req, res) => {
+      const userEmail = req.query.email;
+      const userQuantity = client.db("toolex").collection(`${userEmail}`);
+      const query = {};
+      const cursor = userQuantity.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
     });
   } finally {
     ///
