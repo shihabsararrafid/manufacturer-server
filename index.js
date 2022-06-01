@@ -28,6 +28,22 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
+    //api to delte any item
+    app.delete("/tools", async (req, res) => {
+      const itemId = req.query.id;
+      console.log(itemId);
+      const query = { _id: ObjectId(itemId) };
+      const result = await toolCollection.deleteOne(query);
+      res.send(result);
+      console.log(result);
+    });
+    //api to add any item
+    app.post("/tools", async (req, res) => {
+      const doc = req.body;
+      //console.log(doc);
+      const result = await toolCollection.insertOne(doc);
+      res.send(result);
+    });
     // api to load single data based on id
     app.get("/purchase/:id", async (req, res) => {
       const itemId = req.params.id;
@@ -44,12 +60,23 @@ async function run() {
       const userEmail = req.query.email;
       const quantity = req.query.quantity;
       const price = req.query.price;
+      const options = { upsert: true };
+      const availableQuan = req.query.available;
+      console.log(availableQuan);
+      const filter = { _id: ObjectId(itemId) };
+      const updateDoc1 = {
+        $set: {
+          quantity: availableQuan,
+        },
+      };
+      console.log(quantity);
+      const result1 = await toolCollection.updateOne(
+        filter,
+        updateDoc1,
+        options
+      );
       const img = req.query.img;
       const name = req.query.name;
-
-      const filter = { _id: ObjectId(itemId) };
-
-      const options = { upsert: true };
 
       let distinctValues = [];
       let newQuantities = [];
@@ -81,19 +108,25 @@ async function run() {
       }
       //api to update quantity
       app.put("/tools", async (req, res) => {
-        const quantity1 = req.query.quantity;
+        const availableQuan = req.query.available;
         const itemId = req.query.id;
+        console.log(availableQuan);
         const availQuan = req.query.available;
-        const newquantity = parseInt(availQuan) - parseInt(quantity1);
-        const query = { _id: ObjectId(itemId) };
+        //const newquantity = parseInt(availQuan) - parseInt(quantity1);
+        //const query = { _id: ObjectId(itemId) };
         const options = { upsert: true };
+        const query = { _id: ObjectId(itemId) };
         const updateDoc = {
           $set: {
-            quantity: newquantity,
+            quantity: availableQuan,
           },
         };
         //console.log(quantity, availQuan, newquan);
-        const result = await userQuantity.updateOne(query, updateDoc, options);
+        const result = await toolCollection.updateOne(
+          query,
+          updateDoc,
+          options
+        );
         res.send(result);
         console.log(result);
       });
