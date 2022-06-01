@@ -133,7 +133,7 @@ async function run() {
       const query = { email: userEmail };
       const result = await userCollection.findOne(query);
       // const result = await cursor.toArray();
-      const isadmin = result.role === "admin";
+      const isadmin = result?.role === "admin";
       res.send({ admin: isadmin });
       console.log(isadmin);
     });
